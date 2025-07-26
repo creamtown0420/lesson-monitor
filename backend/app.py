@@ -96,7 +96,7 @@ def restore_monitoring_on_startup():
         clear_monitoring_state()
 
 class SeleniumGunzeScraper:
-    """グンゼスポーツサイトのスクレイパークラス"""
+    """スポーツクラブサイトのスクレイパークラス"""
     
     def __init__(self):
         """Chrome WebDriverを初期化"""
@@ -146,7 +146,7 @@ class SeleniumGunzeScraper:
         self.logged_in = False
 
     def login(self, username, password):
-        """グンゼスポーツサイトにログイン"""
+        """スポーツクラブサイトにログイン"""
         try:
             self.driver.get("https://www1.nesty-gcloud.net/gunzesports_mypage/")
             
@@ -410,7 +410,7 @@ class LessonMonitor:
         if self.notify_method == "email" and self.email:
             NotificationService.send_email(
                 self.email, 
-                "📋 グンゼスポーツ 監視開始通知", 
+                "📋 スポーツクラブ 監視開始通知", 
                 message
             )
         elif self.notify_method == "line" and self.line_token:
@@ -430,7 +430,7 @@ class LessonMonitor:
         if self.notify_method == "email" and self.email:
             NotificationService.send_email(
                 self.email, 
-                "🚨 グンゼスポーツ レッスン空き通知", 
+                "🚨 スポーツクラブ レッスン空き通知", 
                 message
             )
         elif self.notify_method == "line" and self.line_token:
@@ -448,7 +448,7 @@ def index():
     except FileNotFoundError:
         return '''
         <!DOCTYPE html>
-        <html><head><title>グンゼスポーツ レッスン監視</title></head>
+        <html><head><title>スポーツクラブ レッスン監視</title></head>
         <body><h1>フロントエンドファイルが見つかりません</h1>
         <p>frontend/index.html を配置してください</p></body></html>
         '''
@@ -605,7 +605,7 @@ def api_monitoring_status():
     })
 
 if __name__ == '__main__':
-    print("🚀 グンゼスポーツ レッスン監視システム起動中...")
+    print("🚀 スポーツクラブ レッスン監視システム起動中...")
     print("📱 ブラウザで http://127.0.0.1:5000 にアクセスしてください")
     
     # サーバー起動時に前回の監視状態を復旧
