@@ -1,0 +1,17 @@
+# デバッグファイルを除外
+backend/debug/
+backend/__pycache__/
+backend/*.json
+backend/.env
+backend/.env.*
+
+# Git関連
+.git/
+.gitignore
+
+# その他
+*.log
+*.tmp
+venv/
+__pycache__/
+.DS_Store

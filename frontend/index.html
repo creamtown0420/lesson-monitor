@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>グンゼスポーツ レッスン監視システム</title>
+    <link rel="stylesheet" href="scraper/style.css">
+</head>
+<body>
+    <div class="app-container">
+        <header class="app-header">
+            <h1>🏃‍♂️ グンゼスポーツ レッスン監視システム</h1>
+            <p>レッスンの空き状況をリアルタイムで監視し、空きが出たら即座に通知します</p>
+        </header>
+
+        <main class="main-wrapper">
+            <div class="grid-layout">
+                <!-- 左パネル: 設定・監視対象 -->
+                <div class="left-panel">
+                    <!-- レッスン検索カード -->
+                    <div class="card">
+                        <div class="card-header">
+                            <div class="card-icon">🔍</div>
+                            <div class="card-title">レッスン検索・監視設定</div>
+                        </div>
+                        
+                        <form id="lessonForm">
+                            <div class="form-group">
+                                <label for="userId" class="form-label">🆔 会員番号</label>
+                                <input type="text" id="userId" name="userId" class="form-input" required>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="password" class="form-label">🔒 パスワード</label>
+                                <input type="password" id="password" name="password" class="form-input" required>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="date" class="form-label">📅 検索日付</label>
+                                <input type="date" id="date" name="date" class="form-input" required>
+                            </div>
+                            
+                            <button type="submit" class="btn btn-primary">
+                                🔍 レッスンを検索
+                            </button>
+                        </form>
+                    </div>
+
+                    <!-- 監視対象レッスンカード -->
+                    <div class="card">
+                        <div class="card-header">
+                            <div class="card-icon">📌</div>
+                            <div class="card-title">監視対象レッスン</div>
+                        </div>
+                        
+                        <div id="selectedLessons" class="selected-lessons">
+                            <div class="empty-state">
+                                <div class="empty-icon">📝</div>
+                                <p>レッスンを選択してください</p>
+                            </div>
+                        </div>
+
+                        <!-- 通知設定 -->
+                        <div class="form-group">
+                            <label for="notifyMethod" class="form-label">🔔 通知方法</label>
+                            <select id="notifyMethod" name="notifyMethod" class="form-select">
+                                <option value="none">通知しない</option>
+                                <option value="email">📧 メール通知</option>
+                                <option value="line">💬 LINE通知</option>
+                            </select>
+                        </div>
+
+                        <!-- メール通知設定 -->
+                        <div id="emailSettings" class="notification-panel" style="display: none;">
+                            <h3 style="margin-bottom: 1rem;">📧 メール通知設定</h3>
+                            <div class="form-group">
+                                <label for="emailAddress" class="form-label">📮 通知先メールアドレス</label>
+                                <input type="email" id="emailAddress" name="emailAddress" class="form-input" placeholder="example@gmail.com">
+                                <div style="font-size: 0.75rem; color: var(--gray-500); margin-top: 0.5rem;">
+                                    💡 Gmailアドレスを推奨します
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- LINE通知設定 -->
+                        <div id="lineSettings" class="notification-panel" style="display: none;">
+                            <h3 style="margin-bottom: 1rem;">💬 LINE通知設定</h3>
+                            <div class="form-group">
+                                <label for="lineToken" class="form-label">🔑 LINE Notifyトークン</label>
+                                <input type="text" id="lineToken" name="lineToken" class="form-input" placeholder="トークンを入力してください">
+                                <div style="font-size: 0.75rem; color: var(--gray-500); margin-top: 0.5rem;">
+                                    💡 LINE Notify でトークンを取得してください
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 監視間隔 -->
+                        <div class="form-group">
+                            <label for="interval" class="form-label">⏱️ 監視間隔 (分)</label>
+                            <input type="number" id="interval" name="interval" class="form-input" value="5" min="1" max="60">
+                            <div style="font-size: 0.75rem; color: var(--gray-500); margin-top: 0.5rem;">
+                                💡 推奨値: 5分（頻繁すぎるとサーバーに負荷がかかります）
+                            </div>
+                        </div>
+
+                        <!-- 制御ボタン -->
+                        <div style="display: flex; gap: 0.75rem; flex-wrap: wrap; margin-top: 1.5rem;">
+                            <button type="button" id="startMonitoring" class="btn btn-success" disabled>
+                                🚀 監視開始
+                            </button>
+                            <button type="button" id="stopMonitoring" class="btn btn-danger" style="display: none;">
+                                ⏹️ 監視停止
+                            </button>
+                            <button type="button" id="clearSelection" class="btn btn-secondary">
+                                🗑️ 選択クリア
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 右パネル: ステータス・レッスンリスト -->
+                <div class="right-panel">
+                    <!-- 監視ステータスカード -->
+                    <div class="card">
+                        <div class="card-header">
+                            <div class="card-icon">📊</div>
+                            <div class="card-title">監視ステータス</div>
+                        </div>
+                        
+                        <div id="monitoringStatus" class="status-card status-stopped">
+                            <div class="status-title">⏸️ 監視停止中</div>
+                            <div class="status-description">レッスンの監視は行われていません</div>
+                        </div>
+                    </div>
+
+                    <!-- レッスン一覧カード -->
+                    <div class="card">
+                        <div class="card-header">
+                            <div class="card-icon">📚</div>
+                            <div class="card-title">レッスン一覧</div>
+                        </div>
+                        
+                        <p style="color: var(--gray-600); margin-bottom: 1rem; font-size: 0.875rem;">
+                            レッスンをクリックして監視対象に追加できます
+                        </p>
+                        
+                        <div id="lessonList" class="lesson-grid">
+                            <div class="empty-state">
+                                <div class="empty-icon">🔍</div>
+                                <p>会員番号・パスワード・日付を入力してレッスンを検索してください</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="scraper/script.js"></script>
+</body>
+</html>

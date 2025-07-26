@@ -1,0 +1,7 @@
+selenium==4.15.2
+selenium-stealth==1.0.6
+flask==2.3.3
+flask-cors==4.0.0
+requests==2.31.0
+python-dotenv==1.0.0
+chromedriver-autoinstaller==0.6.2

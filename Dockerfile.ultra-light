@@ -1,0 +1,50 @@
+# 超軽量版 - Alpine Linuxベース
+FROM python:3.9-alpine as builder
+
+WORKDIR /app
+
+# Python依存関係のビルド（コンパイル済みホイールを作成）
+COPY backend/requirements.txt .
+RUN apk add --no-cache --virtual .build-deps \
+    gcc \
+    musl-dev \
+    libffi-dev \
+    && pip install --no-cache-dir --user -r requirements.txt \
+    && apk del .build-deps
+
+# 実行用ステージ（超軽量）
+FROM python:3.9-alpine
+
+WORKDIR /app
+
+# 最小限のランタイム依存のみインストール（軽量化）
+RUN apk add --no-cache \
+    chromium \
+    chromium-chromedriver \
+    xvfb-run \
+    && rm -rf /var/cache/apk/* \
+    && rm -rf /usr/share/locale/* \
+    && rm -rf /usr/share/doc/* \
+    && rm -rf /usr/share/man/* \
+    && rm -rf /tmp/*
+
+# ビルドステージからPythonパッケージをコピー
+COPY --from=builder /root/.local /root/.local
+
+# アプリケーションファイルをコピー
+COPY backend/ ./backend/
+COPY frontend/ ./frontend/
+
+# ポート5000を公開
+EXPOSE 5000
+
+# 環境変数設定（Alpine用）
+ENV PATH=/root/.local/bin:$PATH
+ENV CHROME_BIN=/usr/bin/chromium-browser
+ENV CHROME_PATH=/usr/bin/chromium-browser
+ENV DISPLAY=:99
+
+WORKDIR /app/backend
+
+# 直接Python実行（Xvfbを使わない）
+CMD ["python", "app.py"]
